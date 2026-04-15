@@ -398,7 +398,6 @@ body {
 
   let activeCategory = 'All';
 
-  // Build category list
   const catCounts = {};
   RECIPES.forEach(r => {
     catCounts[r.c] = (catCounts[r.c] || 0) + 1;
@@ -407,7 +406,6 @@ body {
 
   statsEl.textContent = `${RECIPES.length} recipes archived`;
 
-  // Render filter buttons
   categories.forEach(cat => {
     const btn = document.createElement('button');
     btn.className = 'filter-btn' + (cat === 'All' ? ' active' : '');
@@ -454,6 +452,7 @@ body {
       if (r.c) meta.push(r.c);
       if (r.i.length) meta.push(`${r.i.length} ingredients`);
       if (r.s.length) meta.push(`${r.s.length} steps`);
+      if (r.time) meta.push(r.time);
 
       card.innerHTML = `
         <div class="card-header">
@@ -475,36 +474,29 @@ body {
 
     if (r.d) html += `<p class="modal-desc">${esc(r.d)}</p>`;
 
-    // Meta chips
     const chips = [];
     if (r.c) chips.push(r.c);
-    if (r.pt) chips.push(r.pt);
-    if (r.ct) chips.push(r.ct);
-    if (r.tmp) chips.push(r.tmp);
-    if (r.sv) chips.push(r.sv);
+    if (r.time) chips.push(r.time);
+    if (r['yield']) chips.push(r['yield']);
     if (chips.length) {
       html += `<div class="modal-meta">${chips.map(c => `<span class="meta-chip">${esc(c)}</span>`).join('')}</div>`;
     }
 
-    // Ingredients
     if (r.i.length) {
       html += `<h3 class="section-title">Ingredients</h3>`;
       html += `<ul class="ingredient-list">${r.i.map(i => `<li>${esc(i)}</li>`).join('')}</ul>`;
     }
 
-    // Steps
     if (r.s.length) {
       html += `<h3 class="section-title">Steps</h3>`;
       html += `<ol class="step-list">${r.s.map(s => `<li>${esc(s)}</li>`).join('')}</ol>`;
     }
 
-    // Tips
-    if (r.tp && r.tp.length) {
+    if (r.tips && r.tips.length) {
       html += `<h3 class="section-title">Tips & Notes</h3>`;
-      html += `<ul class="tips-list">${r.tp.map(t => `<li>${esc(t)}</li>`).join('')}</ul>`;
+      html += `<ul class="tips-list">${r.tips.map(t => `<li>${esc(t)}</li>`).join('')}</ul>`;
     }
 
-    // Source link
     if (r.url) {
       html += `<a class="source-link" href="${esc(r.url)}" target="_blank" rel="noopener">View on ChefSteps ↗</a>`;
     }
@@ -523,7 +515,6 @@ body {
   modal.onclick = (e) => { if (e.target === modal) closeModal(); };
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
-  // Debounced search
   let searchTimeout;
   search.addEventListener('input', () => {
     clearTimeout(searchTimeout);
